@@ -194,17 +194,28 @@ $userid = $_SESSION['userid'];
 
                                                         </select>
                                                     </td>
-                                                    <td><input type="number" class="form-control" name="cantidad[]">
-                                                    </td>
-                                                    <td><input type="text" class="form-control" name="unidad_medida[]">
+                                                    <td>
+                                                        <input type="number" class="form-control cantidad"
+                                                            name="cantidad[]" oninput="calcularSubtotal(this)">
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control" id="descripcion" name="descripcion[]" readonly>
+                                                        <select class="form-control" name="unidad_medida[]">
+                                                            <!-- Las opciones se cargarán dinámicamente aquí -->
+                                                        </select>
                                                     </td>
-                                                    <td><input type="text" class="form-control"
-                                                            name="precio_unitario[]"></td>
+                                                    <td>
+                                                        <input type="text" class="form-control" id="descripcion"
+                                                            name="descripcion[]" readonly>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" class="form-control precio-unitario"
+                                                            name="precio_unitario[]" oninput="calcularSubtotal(this)">
+                                                    </td>
                                                     <td><input type="text" class="form-control" name="descuento[]"></td>
-                                                    <td><input type="text" class="form-control" name="subtotal[]"></td>
+                                                    <td>
+                                                        <input type="text" class="form-control subtotal"
+                                                            name="subtotal[]" readonly>
+                                                    </td>
                                                     <td><button type="button" class="btn btn-danger"
                                                             onclick="quitarFila(this)">X</button></td>
                                                 </tr>
@@ -426,104 +437,154 @@ $userid = $_SESSION['userid'];
         Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
     </script>
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
-    cargarActividades();
-    document.getElementById('tipo_actividad').addEventListener('change', cargarCodigosProductos);
-});
-
-function cargarActividades() {
-    fetch('../php-includes/listaActividades.php')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la solicitud: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(data => {
-        cargarActividadesSelect(data.actividades);
-        cargarCodigosProductos();
-    })
-    .catch(error => console.error('Error de conexión:', error));
-}
-
-function cargarActividadesSelect(actividades) {
-    var selectElement = document.getElementById('tipo_actividad');
-    selectElement.innerHTML = '';
-
-    actividades.forEach(function(actividad) {
-        var option = document.createElement('option');
-        option.value = actividad;
-        option.textContent = actividad;
-        selectElement.appendChild(option);
+        cargarActividades();
+        document.getElementById('tipo_actividad').addEventListener('change', cargarCodigosProductos);
     });
-}
 
-function cargarCodigosProductos() {
-    var codigoActividad = document.getElementById('tipo_actividad').value;
-    fetch('../php-includes/listaActividades.php?codigoActividad=' + encodeURIComponent(codigoActividad))
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la solicitud: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(data => cargarCodigosProductosSelect(data.codigosProductos))
-    .catch(error => console.error('Error de conexión:', error));
-}
-
-function cargarCodigosProductosSelect(codigosProductos) {
-    var selects = document.querySelectorAll('select[name="codigo_producto_servicio[]"]');
-    selects.forEach(function(selectElement) {
-        selectElement.innerHTML = '<option value="">Selecciona un producto</option>';
-        codigosProductos.forEach(function(codigo) {
-            var option = document.createElement('option');
-            option.value = codigo;
-            option.textContent = codigo;
-            selectElement.appendChild(option);
-            selectElement.onchange = cargarDescripcionProducto;
-        });
-    });
-}
-function cargarDescripcionProducto() {
-    var selectElement = this;
-    var codigoProducto = this.value;
-    var codigoActividadElement = document.getElementById('tipo_actividad');
-    var codigoActividad = '';
-
-    // Mapear la selección del usuario a los valores numéricos correctos
-    if (codigoActividadElement.value === 'Actividad Principal') {
-        codigoActividad = '464300';
-    } else if (codigoActividadElement.value === 'Actividad Secundaria') {
-        codigoActividad = '001220';
+    function cargarActividades() {
+        fetch('../php-includes/listaActividades.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                cargarActividadesSelect(data.actividades);
+                cargarCodigosProductos();
+            })
+            .catch(error => console.error('Error de conexión:', error));
     }
 
-    console.log('Código de Producto:', codigoProducto);
-    console.log('Código de Actividad:', codigoActividad);
-    
-    fetch(`../php-includes/obtenerDescripcionProducto.php?codigoProducto=${encodeURIComponent(codigoProducto)}&codigoActividad=${encodeURIComponent(codigoActividad)}`)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la solicitud: ' + response.status);
+    function cargarActividadesSelect(actividades) {
+        var selectElement = document.getElementById('tipo_actividad');
+        selectElement.innerHTML = '';
+
+        actividades.forEach(function(actividad) {
+            var option = document.createElement('option');
+            option.value = actividad;
+            option.textContent = actividad;
+            selectElement.appendChild(option);
+        });
+    }
+
+    function cargarCodigosProductos() {
+        var codigoActividad = document.getElementById('tipo_actividad').value;
+        fetch('../php-includes/listaActividades.php?codigoActividad=' + encodeURIComponent(codigoActividad))
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => cargarCodigosProductosSelect(data.codigosProductos))
+            .catch(error => console.error('Error de conexión:', error));
+    }
+
+    function cargarCodigosProductosSelect(codigosProductos) {
+        var selects = document.querySelectorAll('select[name="codigo_producto_servicio[]"]');
+        selects.forEach(function(selectElement) {
+            selectElement.innerHTML = '<option value="">Selecciona un producto</option>';
+            codigosProductos.forEach(function(codigo) {
+                var option = document.createElement('option');
+                option.value = codigo;
+                option.textContent = codigo;
+                selectElement.appendChild(option);
+                selectElement.onchange = cargarDescripcionProducto;
+            });
+        });
+    }
+
+    function cargarDescripcionProducto() {
+        var selectElement = this;
+        var codigoProducto = this.value;
+        var codigoActividadElement = document.getElementById('tipo_actividad');
+        var codigoActividad = '';
+
+        // Mapear la selección del usuario a los valores numéricos correctos
+        if (codigoActividadElement.value === 'Actividad Principal') {
+            codigoActividad = '464300';
+        } else if (codigoActividadElement.value === 'Actividad Secundaria') {
+            codigoActividad = '001220';
         }
-        return response.text(); // Recibir la respuesta como texto
-    })
-    .then(descripcion => {
-        var descripcionInput = selectElement.closest('tr').querySelector('input[name="descripcion[]"]');
-        descripcionInput.value = descripcion;
-    })
-    .catch(error => console.error('Error de conexión:', error));
-}
 
-function agregarFila() {
-    // Código para agregar una fila a la tabla de productos
-    // ... (añadir lógica aquí)
-}
+        console.log('Código de Producto:', codigoProducto);
+        console.log('Código de Actividad:', codigoActividad);
 
-function quitarFila(btn) {
-    // Código para quitar una fila de la tabla
-    // ... (añadir lógica aquí)
-}
-</script>
+        fetch(
+                `../php-includes/obtenerDescripcionProducto.php?codigoProducto=${encodeURIComponent(codigoProducto)}&codigoActividad=${encodeURIComponent(codigoActividad)}`
+            )
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud: ' + response.status);
+                }
+                return response.text(); // Recibir la respuesta como texto
+            })
+            .then(descripcion => {
+                var descripcionInput = selectElement.closest('tr').querySelector('input[name="descripcion[]"]');
+                descripcionInput.value = descripcion;
+            })
+            .catch(error => console.error('Error de conexión:', error));
+    }
+
+    function cargarUnidadesDeMedida() {
+        // Asegúrate de que la URL sea la correcta para tu configuración
+        fetch('../php-includes/obtenerUnidadesMedida.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la solicitud: ' + response.statusText);
+                }
+                return response.text(); // Recibir la respuesta como texto plano
+            })
+            .then(texto => {
+                console.log('Unidades de medida recibidas:', texto); // Para depuración
+                var unidades = texto.trim().split("\n").filter(Boolean); // Filtra líneas vacías
+                var selectsUnidadMedida = document.querySelectorAll('select[name="unidad_medida[]"]');
+                console.log('Selects encontrados:', selectsUnidadMedida.length); // Para depuración
+
+                selectsUnidadMedida.forEach(select => {
+                    select.innerHTML = ''; // Limpia las opciones existentes
+                    unidades.forEach(unidad => {
+                        var option = document.createElement('option');
+                        option.value = unidad.trim();
+                        option.textContent = unidad.trim();
+                        select.appendChild(option);
+                    });
+                });
+            })
+            .catch(error => console.error('Error de conexión:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarUnidadesDeMedida);
+
+    function calcularSubtotal(elemento) {
+        // Encuentra la fila actual en la que el input está ubicado
+        var filaActual = elemento.closest('tr');
+
+        // Obtén los valores de cantidad y precio unitario
+        var cantidad = filaActual.querySelector('.cantidad').value;
+        var precioUnitario = filaActual.querySelector('.precio-unitario').value;
+
+        // Asegúrate de que ambos valores son números y calcula el subtotal
+        var subtotal = (cantidad && precioUnitario) ? (cantidad * precioUnitario) : 0;
+
+        // Actualiza el campo de subtotal en la fila actual
+        filaActual.querySelector('.subtotal').value = subtotal.toFixed(2); // Redondea a dos decimales
+    }
+
+
+    function agregarFila() {
+        // Código para agregar una fila a la tabla de productos
+        // ... (añadir lógica aquí)
+    }
+
+    function quitarFila(btn) {
+        // Código para quitar una fila de la tabla
+        // ... (añadir lógica aquí)
+    }
+    </script>
 </body>
+
 </html>
