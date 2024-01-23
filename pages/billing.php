@@ -131,85 +131,6 @@ $userid = $_SESSION['userid'];
         xhttp.send();
     }
     </script>
-    <script>
-    // Función para cargar los códigos de productos en el combo box
-    function cargarCodigosProductos() {
-        // Realizar la solicitud AJAX a tu servidor para obtener los códigos de productos
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '../php-includes/listaProductos.php', true);
-        xhr.onload = function() {
-            if (this.status === 200) {
-                var codigos = JSON.parse(this.responseText); // Asumiendo que es una lista simple
-
-                // Se asume que ya hay un elemento select en el DOM
-                var select = document.querySelector('select[name="codigo_producto_servicio[]"]');
-                if (select) {
-                    // Limpia las opciones existentes primero
-                    select.innerHTML = '';
-
-                    // Crea una opción por defecto (opcional)
-                    var opcionPorDefecto = document.createElement('option');
-                    opcionPorDefecto.value = '';
-                    opcionPorDefecto.textContent = 'Selecciona un producto';
-                    select.appendChild(opcionPorDefecto);
-
-                    // Agrega los códigos de productos como opciones
-                    codigos.forEach(function(codigo) {
-                        var option = document.createElement('option');
-                        option.value = codigo;
-                        option.textContent = codigo;
-                        select.appendChild(option);
-                    });
-                }
-            } else {
-                console.error('No se pudieron cargar los códigos de productos:', this.statusText);
-            }
-        };
-        xhr.onerror = function() {
-            console.error('Ocurrió un error durante la transacción AJAX.');
-        };
-        xhr.send();
-    }
-
-    // Llamar a la función al cargar la página
-    document.addEventListener('DOMContentLoaded', cargarCodigosProductos);
-    </script>
-    <script>
-    // Esta función se llama cada vez que se selecciona un producto en el combo box
-    function cargarDescripcionProducto(selectElement) {
-        var codigoProducto = selectElement.value;
-        var descripcionInput = selectElement.parentNode.parentNode.querySelector('input[name="descripcion[]"]');
-
-        if (codigoProducto) {
-            // Aquí haces la llamada AJAX para obtener la descripción del producto
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '../php-includes/getDescripcionProducto.php?codigoProducto=' + encodeURIComponent(
-                codigoProducto), true);
-            xhr.onload = function() {
-                if (this.status === 200) {
-                    // Suponiendo que tu script PHP devuelve un objeto JSON con la descripción
-                    var respuesta = JSON.parse(this.responseText);
-                    if (respuesta.descripcionProducto) {
-                        descripcionInput.value = respuesta.descripcionProducto;
-                    }
-                }
-            };
-            xhr.send();
-        } else {
-            // Si no se ha seleccionado un producto, limpia el campo de descripción
-            descripcionInput.value = '';
-        }
-    }
-
-    // Agrega el evento 'change' a todos los combo box existentes y futuros de la tabla
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('tablaProductos').addEventListener('change', function(e) {
-            if (e.target && e.target.name === 'codigo_producto_servicio[]') {
-                cargarDescripcionProducto(e.target);
-            }
-        });
-    });
-    </script>
 
 </head>
 
@@ -278,8 +199,7 @@ $userid = $_SESSION['userid'];
                                                     <td><input type="text" class="form-control" name="unidad_medida[]">
                                                     </td>
                                                     <td>
-                                                        <input type="text" class="form-control" name="descripcion[]"
-                                                            value="<?php echo htmlspecialchars($descripcionProducto); ?>">
+                                                        <input type="text" class="form-control" id="descripcion" name="descripcion[]" readonly>
                                                     </td>
                                                     <td><input type="text" class="form-control"
                                                             name="precio_unitario[]"></td>
@@ -508,82 +428,102 @@ $userid = $_SESSION['userid'];
     </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        cargarActividades();
-        document.getElementById('tipo_actividad').addEventListener('change', cargarCodigosProductos);
+    cargarActividades();
+    document.getElementById('tipo_actividad').addEventListener('change', cargarCodigosProductos);
+});
+
+function cargarActividades() {
+    fetch('../php-includes/listaActividades.php')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la solicitud: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        cargarActividadesSelect(data.actividades);
+        cargarCodigosProductos();
+    })
+    .catch(error => console.error('Error de conexión:', error));
+}
+
+function cargarActividadesSelect(actividades) {
+    var selectElement = document.getElementById('tipo_actividad');
+    selectElement.innerHTML = '';
+
+    actividades.forEach(function(actividad) {
+        var option = document.createElement('option');
+        option.value = actividad;
+        option.textContent = actividad;
+        selectElement.appendChild(option);
     });
+}
 
-    function cargarActividades() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '../php-includes/listaActividades.php', true);
-        xhr.onload = function() {
-            if (this.status === 200) {
-                var respuesta = JSON.parse(this.responseText);
-                var actividades = respuesta.actividades;
-                cargarActividadesSelect(actividades);
-                cargarCodigosProductos();
-            } else {
-                console.error('Error en la solicitud: ' + this.status);
-            }
-        };
-        xhr.onerror = function() {
-            console.error('Error de conexión');
-        };
-        xhr.send();
-    }
+function cargarCodigosProductos() {
+    var codigoActividad = document.getElementById('tipo_actividad').value;
+    fetch('../php-includes/listaActividades.php?codigoActividad=' + encodeURIComponent(codigoActividad))
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la solicitud: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => cargarCodigosProductosSelect(data.codigosProductos))
+    .catch(error => console.error('Error de conexión:', error));
+}
 
-    function cargarActividadesSelect(actividades) {
-        var selectElement = document.getElementById('tipo_actividad');
-        selectElement.innerHTML = '';
-
-        actividades.forEach(function(actividad) {
+function cargarCodigosProductosSelect(codigosProductos) {
+    var selects = document.querySelectorAll('select[name="codigo_producto_servicio[]"]');
+    selects.forEach(function(selectElement) {
+        selectElement.innerHTML = '<option value="">Selecciona un producto</option>';
+        codigosProductos.forEach(function(codigo) {
             var option = document.createElement('option');
-            option.value = actividad;
-            option.textContent = actividad;
+            option.value = codigo;
+            option.textContent = codigo;
             selectElement.appendChild(option);
+            selectElement.onchange = cargarDescripcionProducto;
         });
+    });
+}
+function cargarDescripcionProducto() {
+    var selectElement = this;
+    var codigoProducto = this.value;
+    var codigoActividadElement = document.getElementById('tipo_actividad');
+    var codigoActividad = '';
+
+    // Mapear la selección del usuario a los valores numéricos correctos
+    if (codigoActividadElement.value === 'Actividad Principal') {
+        codigoActividad = '464300';
+    } else if (codigoActividadElement.value === 'Actividad Secundaria') {
+        codigoActividad = '001220';
     }
 
-    function cargarCodigosProductos() {
-        var codigoActividad = document.getElementById('tipo_actividad').value;
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '../php-includes/listaActividades.php?codigoActividad=' + encodeURIComponent(codigoActividad), true);
-        xhr.onload = function() {
-            if (this.status === 200) {
-                var respuesta = JSON.parse(this.responseText);
-                var codigosProductos = respuesta.codigosProductos;
-                cargarCodigosProductosSelect(codigosProductos);
-            } else {
-                console.error('Error en la solicitud: ' + this.status);
-            }
-        };
-        xhr.onerror = function() {
-            console.error('Error de conexión');
-        };
-        xhr.send();
-    }
+    console.log('Código de Producto:', codigoProducto);
+    console.log('Código de Actividad:', codigoActividad);
+    
+    fetch(`../php-includes/obtenerDescripcionProducto.php?codigoProducto=${encodeURIComponent(codigoProducto)}&codigoActividad=${encodeURIComponent(codigoActividad)}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la solicitud: ' + response.status);
+        }
+        return response.text(); // Recibir la respuesta como texto
+    })
+    .then(descripcion => {
+        var descripcionInput = selectElement.closest('tr').querySelector('input[name="descripcion[]"]');
+        descripcionInput.value = descripcion;
+    })
+    .catch(error => console.error('Error de conexión:', error));
+}
 
-    function cargarCodigosProductosSelect(codigosProductos) {
-        var selects = document.querySelectorAll('select[name="codigo_producto_servicio[]"]');
-        selects.forEach(function(selectElement) {
-            selectElement.innerHTML = '<option value="">Selecciona un producto</option>';
-            codigosProductos.forEach(function(codigo) {
-                var option = document.createElement('option');
-                option.value = codigo;
-                option.textContent = codigo;
-                selectElement.appendChild(option);
-            });
-        });
-    }
+function agregarFila() {
+    // Código para agregar una fila a la tabla de productos
+    // ... (añadir lógica aquí)
+}
 
-    function agregarFila() {
-        // Código para agregar una fila a la tabla de productos
-    }
-
-    function quitarFila(btn) {
-        // Código para quitar una fila de la tabla
-    }
+function quitarFila(btn) {
+    // Código para quitar una fila de la tabla
+    // ... (añadir lógica aquí)
+}
 </script>
-
 </body>
-
 </html>
