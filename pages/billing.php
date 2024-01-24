@@ -110,7 +110,7 @@ $userid = $_SESSION['userid'];
                             // Si el NIT es activo, asigna el valor al campo Cod. Cliente
                             codClienteInput.value = nit;
                         } else {
-                            alert("El NIT no está activo.");
+                            alert("El NIT no está activo o INEXISTENTE.");
                         }
                     } catch (e) {
                         if (this.responseText === "NIT ACTIVO") {
@@ -118,7 +118,7 @@ $userid = $_SESSION['userid'];
                             // Si el NIT es activo, asigna el valor al campo Cod. Cliente
                             codClienteInput.value = nit;
                         } else {
-                            alert("El NIT no está activo.");
+                            alert("El NIT no está activo o INEXISTENTE.");
                         }
                     }
                 } else {
@@ -127,7 +127,7 @@ $userid = $_SESSION['userid'];
             }
         };
 
-        xhttp.open("GET", "http://localhost:4010/verificaNit?nit=" + nit, true);
+        xhttp.open("GET", "http://localhost:8591/check?nit=" + nit, true);
         xhttp.send();
     }
     </script>
@@ -222,6 +222,12 @@ $userid = $_SESSION['userid'];
                                             </tbody>
                                             <tfoot>
                                                 <!-- ... Tus filas de totales aquí ... -->
+                                                <tr>
+                                                    <td colspan="6"></td>
+                                                    <td>TOTAL</td>
+                                                    <td><input type="text" class="form-control" id="total" name="total"
+                                                            readonly></td>
+                                                </tr>
                                             </tfoot>
                                         </table>
                                     </div>
@@ -575,16 +581,100 @@ $userid = $_SESSION['userid'];
     }
 
 
+    // Función para agregar una fila a la tabla de productos
     function agregarFila() {
-        // Código para agregar una fila a la tabla de productos
-        // ... (añadir lógica aquí)
+        // Obtener la tabla y su cuerpo
+        var tabla = document.getElementById("tablaProductos").getElementsByTagName('tbody')[0];
+
+        // Crear una nueva fila
+        var fila = tabla.insertRow();
+
+        // Agregar celdas a la fila
+        var celdaCodigo = fila.insertCell(0);
+        var celdaCantidad = fila.insertCell(1);
+        var celdaUnidadMedida = fila.insertCell(2);
+        var celdaDescripcion = fila.insertCell(3);
+        var celdaPrecioUnitario = fila.insertCell(4);
+        var celdaDescuento = fila.insertCell(5);
+        var celdaSubtotal = fila.insertCell(6);
+        var celdaQuitar = fila.insertCell(7);
+
+        // Llenar las celdas con elementos HTML (puedes personalizar esto según tus necesidades)
+        celdaCodigo.innerHTML = '<select class="form-control" name="codigo_producto_servicio[]"></select>';
+        celdaCantidad.innerHTML =
+            '<input type="number" class="form-control cantidad" name="cantidad[]" oninput="calcularSubtotal(this)">';
+        celdaUnidadMedida.innerHTML = '<select class="form-control" name="unidad_medida[]"></select>';
+        celdaDescripcion.innerHTML = '<input type="text" class="form-control" name="descripcion[]" readonly>';
+        celdaPrecioUnitario.innerHTML =
+            '<input type="text" class="form-control precio-unitario" name="precio_unitario[]" oninput="calcularSubtotal(this)">';
+        celdaDescuento.innerHTML = '<input type="text" class="form-control" name="descuento[]">';
+        celdaSubtotal.innerHTML = '<input type="text" class="form-control subtotal" name="subtotal[]" readonly>';
+        celdaQuitar.innerHTML = '<button type="button" class="btn btn-danger" onclick="quitarFila(this)">X</button>';
+
+        // Después de agregar la fila, cargar códigos de productos y unidades de medida
+        cargarCodigosProductos();
+        cargarUnidadesDeMedida();
+        // calcularTotal();
     }
 
+    // Función para quitar una fila de la tabla
     function quitarFila(btn) {
-        // Código para quitar una fila de la tabla
-        // ... (añadir lógica aquí)
+        // Obtener la fila padre del botón
+        var fila = btn.parentNode.parentNode;
+
+        // Obtener la tabla y su cuerpo
+        var tabla = document.getElementById("tablaProductos").getElementsByTagName('tbody')[0];
+
+        // Quitar la fila de la tabla
+        tabla.removeChild(fila);
     }
+
+    // Resto de tu código para cargar datos dinámicos (cargarActividades, cargarCodigosProductos, cargarUnidadesDeMedida, calcularSubtotal, etc.)
+
+    // Event listener para cargar unidades de medida al cargar la página
+    document.addEventListener('DOMContentLoaded', cargarUnidadesDeMedida);
     </script>
+    <script>
+    // Función para calcular y actualizar el total
+    function calcularTotal() {
+        var filasSubtotal = document.querySelectorAll('.subtotal');
+        var total = 0;
+
+        filasSubtotal.forEach(function(subtotalInput) {
+            var subtotal = parseFloat(subtotalInput.value) ||
+            0; // Convierte a número o usa 0 si no se puede convertir
+            total += subtotal;
+        });
+
+        // Actualizar el campo TOTAL
+        var totalInput = document.getElementById('total');
+        totalInput.value = total.toFixed(2); // Redondear a dos decimales y mostrar en el campo TOTAL
+    }
+
+    // Función para calcular el subtotal cuando cambie la cantidad o el precio unitario
+    function calcularSubtotal(input) {
+        var cantidad = parseFloat(input.parentElement.parentElement.querySelector('.cantidad').value) || 0;
+        var precioUnitario = parseFloat(input.parentElement.parentElement.querySelector('.precio-unitario').value) || 0;
+        var subtotal = cantidad * precioUnitario;
+        input.parentElement.parentElement.querySelector('.subtotal').value = subtotal.toFixed(2);
+
+        // Llamar a calcularTotal después de actualizar el subtotal
+        calcularTotal();
+    }
+
+    // Función para quitar una fila de la tabla
+    function quitarFila(button) {
+        var fila = button.parentElement.parentElement;
+        fila.remove();
+
+        // Llamar a calcularTotal después de quitar una fila
+        calcularTotal();
+    }
+
+    // Llamar a la función para calcular el total inicialmente y cada vez que cambie un subtotal
+    document.addEventListener('DOMContentLoaded', calcularTotal);
+    </script>
+
 </body>
 
 </html>
