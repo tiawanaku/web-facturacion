@@ -146,7 +146,7 @@ $userid = $_SESSION['userid'];
                         <div class="row">
                             <div class="col-lg-12 mx-auto">
                                 <h2 class="text-center mb-4">Factura de Venta</h2>
-                                <form>
+                                <form action="cuf.php" method="post">
                                     <div class="mb-3">
                                         <label for="tipo_actividad" class="form-label">Seleccione Actividad:</label>
                                         <select class="form-control" id="tipo_actividad">
@@ -599,7 +599,7 @@ $userid = $_SESSION['userid'];
         var celdaSubtotal = fila.insertCell(6);
         var celdaQuitar = fila.insertCell(7);
 
-        // Llenar las celdas con elementos HTML (puedes personalizar esto según tus necesidades)
+        // Llenar las celdas con elementos HTML
         celdaCodigo.innerHTML = '<select class="form-control" name="codigo_producto_servicio[]"></select>';
         celdaCantidad.innerHTML =
             '<input type="number" class="form-control cantidad" name="cantidad[]" oninput="calcularSubtotal(this)">';
@@ -612,8 +612,8 @@ $userid = $_SESSION['userid'];
         celdaQuitar.innerHTML = '<button type="button" class="btn btn-danger" onclick="quitarFila(this)">X</button>';
 
         // Después de agregar la fila, cargar códigos de productos y unidades de medida
-        cargarCodigosProductos();
-        cargarUnidadesDeMedida();
+        cargarCodigosProductos(fila);
+        cargarUnidadesDeMedida(fila);
         // calcularTotal();
     }
 
@@ -642,7 +642,7 @@ $userid = $_SESSION['userid'];
 
         filasSubtotal.forEach(function(subtotalInput) {
             var subtotal = parseFloat(subtotalInput.value) ||
-            0; // Convierte a número o usa 0 si no se puede convertir
+                0; // Convierte a número o usa 0 si no se puede convertir
             total += subtotal;
         });
 
