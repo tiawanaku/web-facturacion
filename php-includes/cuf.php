@@ -63,34 +63,51 @@ class SiatCufBuilder {
 
     public function build() {
         date_default_timezone_set('UTC');
-        $dateFormat = 'YmdHisu';
+        $dateFormat = 'YmdHisu'; // Formato que incluye microsegundos
         $fechaHora = $this->fechaEmision->format($dateFormat);
+
+        // Truncar los microsegundos a los primeros 3 dígitos
+        $fechaHora = substr($fechaHora, 0, 17); // YmdHis + 3 dígitos de microsegundos
+
+        echo "fechaHora: " . $fechaHora . "\n";
+
         $nitEmisor = str_pad($this->nitEmisor, 13, '0', STR_PAD_LEFT);
-        $sucursal = str_pad($this->sucursal, 4, '0', STR_PAD_LEFT);
+        echo "nitEmisor: " . $nitEmisor . "\n";
+
+        $sucursal = strlen($this->sucursal) > 4 ? substr($this->sucursal, 0, 4) : $this->sucursal;
+        echo "sucursal: " . $sucursal . "\n";
+
         $modalidad = $this->modalidad;
+        echo "modalidad: " . $modalidad . "\n";
+
         $tipoEmision = $this->tipoEmision;
+        echo "tipoEmision: " . $tipoEmision . "\n";
+
         $tipoFactura = $this->tipoFactura;
-        $tipoDocumentoSector = str_pad($this->tipoDocumentoSector, 2, '0', STR_PAD_LEFT);
-        $numeroFactura = str_pad($this->numeroFactura, 10, '0', STR_PAD_LEFT);
+        echo "tipoFactura: " . $tipoFactura . "\n";
+
+        $tipoDocumentoSector = strlen($this->tipoDocumentoSector) > 2 ? substr($this->tipoDocumentoSector, 0, 2) : $this->tipoDocumentoSector;
+        echo "tipoDocumentoSector: " . $tipoDocumentoSector . "\n";
+
+        $numeroFactura = strlen($this->numeroFactura) > 10 ? substr($this->numeroFactura, 0, 10) : $this->numeroFactura;
+        echo "numeroFactura: " . $numeroFactura . "\n";
+
         $pos = str_pad($this->pos, 4, '0', STR_PAD_LEFT);
+        echo "pos: " . $pos . "\n";
 
         $cadena = $nitEmisor . $fechaHora . $sucursal . $modalidad . $tipoEmision . $tipoFactura . $tipoDocumentoSector . $numeroFactura . $pos;
-
         echo "Concatenación de campos: " . $cadena . "\n";
 
         $verificador = $this->buildDigito11($cadena, 1, 9, false);
         $cadenaConModulo = $cadena . $verificador;
-
         echo "Resultado del módulo 11: " . $verificador . "\n";
         echo "Concatenación con módulo 11: " . $cadenaConModulo . "\n";
 
         $bigInt = $cadenaConModulo;
         $toHex = strtoupper($this->bigIntToHex($bigInt));
-
         echo "Resultado de Base 16: " . $toHex . "\n";
 
-        // Aquí debes concatenar el código de control obtenido en el Servicio Web de solicitudCufd
-        $codigoControl = "69931B9E5948E74";
+        $codigoControl = "69931B9E5948E74"; // Reemplazar con el código de control real
         $cuf = $toHex . $codigoControl;
 
         return $cuf;
@@ -107,13 +124,7 @@ $cufBuilder->nitEmisor = "0000123456789";
 $cufBuilder->tipoDocumentoSector = "01";
 $cufBuilder->numeroFactura = "0000000001";
 $cufBuilder->pos = "0000";
-
-// Configurar la variable fechaEmision con el valor "20190113163721231"
-$cufBuilder->fechaEmision = DateTime::createFromFormat('YmdHisu', '20190113163721231');
+$cufBuilder->fechaEmision = DateTime::createFromFormat('YmdHisu', '20190113163721231000');
 
 $cuf = $cufBuilder->build();
 echo "CUF: " . $cuf . "\n";
-
-
-
-
