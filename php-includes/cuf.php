@@ -60,10 +60,9 @@ class SiatCufBuilder {
     }
 
     public function build() {
-        date_default_timezone_set('UTC');
-        $dateFormat = 'YmdHisu'; // Formato que incluye microsegundos
-        $fechaHoraActual = DateTime::createFromFormat('U.u', number_format(microtime(true), 6, '.', ''))->format($dateFormat);
-        $fechaHora = substr($fechaHoraActual, 0, 17);
+        date_default_timezone_set('America/La_Paz');
+        $dateTime = new DateTime();
+        $fechaHora = $dateTime->format('YmdHis') . substr(sprintf('%06d', $dateTime->format('u')), 0, 3);
 
         $nitEmisor = str_pad($this->nitEmisor, 13, '0', STR_PAD_LEFT);
         $sucursal = strlen($this->sucursal) > 4 ? substr($this->sucursal, 0, 4) : $this->sucursal;
@@ -82,7 +81,7 @@ class SiatCufBuilder {
         $bigInt = $cadenaConModulo;
         $toHex = strtoupper($this->bigIntToHex($bigInt));
 
-        $codigoControl = "5731E6219948E74"; // Este valor debe ser reemplazado por el código de control real
+        $codigoControl = "07511A789948E74"; // Este valor debe ser reemplazado por el código de control real
         $cuf = $toHex . $codigoControl;
 
         return $cuf;
