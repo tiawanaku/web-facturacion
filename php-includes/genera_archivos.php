@@ -79,16 +79,6 @@ $xmlContent = '
 // Reemplazar el marcador de posición del CUF
 $xmlContent = str_replace('AQUI', $cuf, $xmlContent);
 
-// Continuar con el resto del XML
-$xmlContent .= '<?xml version="1.0" encoding="UTF-8"?> <facturaComputarizadaCompraVenta
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="facturaComputarizadaCompraVenta.xsd">
-    <cabecera>
-        <nitEmisor>343322026</nitEmisor>...';
-
-        // Reemplazar el marcador de posición con la fecha y hora actuales
-        $xmlContent = str_replace('FECHA_AQUI', getFormattedDateTime(), $xmlContent);
-
         // Contenido XML con un marcador de posición para la fecha de emisión
         $xmlContent = '
         <?xml version="1.0" encoding="UTF-8"?>
