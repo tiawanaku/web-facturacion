@@ -4,7 +4,7 @@ require_once 'cuf.php';
 // Función para obtener la fecha y hora actuales en el formato especificado
 function getFormattedDateTime() {
     // Establecer la zona horaria a UTC
-    date_default_timezone_set('UTC');
+    date_default_timezone_set('America/Puerto_Rico');
     // Formato: Y-m-d\TH:i:s (año-mes-díaT hora:minuto:segundo)
     // PHP no maneja milisegundos, así que se agrega '.000' manualmente
     return date('Y-m-d\TH:i:s') . '.000';
@@ -25,7 +25,56 @@ $cuf = $cufBuilder->build();
 echo "CUF generado: " . $cuf . "\n";
 
 // Contenido XML con un marcador de posición para el CUF y la fecha de emisión
-$xmlContent = '...<cuf>AQUI</cuf>...';
+$xmlContent = '
+        <?xml version="1.0" encoding="UTF-8"?>
+        <facturaComputarizadaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="facturaComputarizadaCompraVenta.xsd">
+            <cabecera>
+                <nitEmisor>343322026</nitEmisor>
+                <razonSocialEmisor>CEGEPA SRL</razonSocialEmisor>
+                <municipio>La Paz</municipio>
+                <telefono>76543213</telefono>
+                <numeroFactura>1</numeroFactura>
+                <cuf>AQUI</cuf>
+                <cufd>BQUE5Q1doaUFBNzTgwMzg1NENFMDY=Q8KhMGluUWFCWVVc2RTU4NzA3M0VBM</cufd>
+                <codigoSucursal>0</codigoSucursal>
+                <direccion>AV. JORGE LOPEZ #123</direccion>
+                <codigoPuntoVenta xsi:nil="true" />
+                <fechaEmision>FECHA_AQUI</fechaEmision>
+                <nombreRazonSocial>Hilaquita</nombreRazonSocial>
+                <codigoTipoDocumentoIdentidad>1</codigoTipoDocumentoIdentidad>
+                <numeroDocumento>12831711016</numeroDocumento>
+                <complemento xsi:nil="true" />
+                <codigoCliente>12831711016</codigoCliente>
+                <codigoMetodoPago>1</codigoMetodoPago>
+                <numeroTarjeta xsi:nil="true" />
+                <montoTotal>99</montoTotal>
+                <montoTotalSujetoIva>99</montoTotalSujetoIva>
+                <codigoMoneda>1</codigoMoneda>
+                <tipoCambio>1</tipoCambio>
+                <montoTotalMoneda>99</montoTotalMoneda>
+                <montoGiftCard xsi:nil="true" />
+                <descuentoAdicional>1</descuentoAdicional>
+                <codigoExcepcion xsi:nil="true" />
+                <cafc xsi:nil="true" />
+                <leyenda>Ley N° 453: Puedes acceder a la reclamación cuando tus derechos han sido vulnerados.</leyenda>
+                <usuario>pperez</usuario>
+                <codigoDocumentoSector>1</codigoDocumentoSector>
+            </cabecera>
+            <detalle>
+                <actividadEconomica>001220</actividadEconomica>
+                <codigoProductoSin>99100</codigoProductoSin>
+                <codigoProducto>JN-131231</codigoProducto>
+                <descripcion>JUGO DE NARANJA EN VASO</descripcion>
+                <cantidad>1</cantidad>
+                <unidadMedida>1</unidadMedida>
+                <precioUnitario>100</precioUnitario>
+                <montoDescuento>0</montoDescuento>
+                <subTotal>100</subTotal>
+                <numeroSerie>0</numeroSerie>
+                <numeroImei>0</numeroImei>
+            </detalle>
+        </facturaComputarizadaCompraVenta>';
 
 // Reemplazar el marcador de posición del CUF
 $xmlContent = str_replace('AQUI', $cuf, $xmlContent);
@@ -115,25 +164,7 @@ $xmlContent .= '<?xml version="1.0" encoding="UTF-8"?> <facturaComputarizadaComp
         $base64Encoded = base64_encode(file_get_contents($gzipPath));
         echo "Cadena Base64 del archivo comprimido:\n$base64Encoded\n";
 
-        // Crear cliente SOAP con la opción 'trace' habilitada
-        $clienteSoap = new SoapClient(null, [
-        'location' => 'https://pilotosiatservicios.impuestos.gob.bo/v2/ServicioFacturacionCompraVenta',
-        'uri' => 'https://siat.impuestos.gob.bo/',
-        'trace' => 1, // Habilitar trazado
-        'stream_context' => stream_context_create([
-        'http' => [
-        'header' => 'apikey: TokenApi
-        eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJDRUdFUEEiLCJjb2RpZ29TaXN0ZW1hIjoiNzc2RTU4NzA3M0VBMTgwMzg1NENFMDYiLCJuaXQiOiJINHNJQUFBQUFBQUFBRE0yTVRZMk1qSXdNZ01BUm9BMWJBa0FBQUE9IiwiaWQiOjYyNzA3MiwiZXhwIjoxNzMxNDU2MDAwLCJpYXQiOjE2OTk5OTE3ODYsIm5pdERlbGVnYWRvIjozNDMzMjIwMjYsInN1YnNpc3RlbWEiOiJTRkUifQ.taqReXfn8lmMVPs1RUQMO_-KRnUeE9CLEN2Y55NhoCn-tjX-F8EA9fJomvimFgG3tKRz3QmPQDAXqePjZij2NQ'
-        ]
-        ])
-        ]);
-
-        // Construir el cuerpo del mensaje SOAP
-        $soapRequest = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-            xmlns:siat="https://siat.impuestos.gob.bo/">
-            <soapenv:Header />
-            <soapenv:Body>
-                <siat:recepcionFactura>
+        $soapRequest = '<siat:recepcionFactura xmlns:siat="https://siat.impuestos.gob.bo/">
                     <SolicitudServicioRecepcionFactura>
                         <codigoAmbiente>2</codigoAmbiente>
                         <codigoDocumentoSector>1</codigoDocumentoSector>
@@ -151,18 +182,29 @@ $xmlContent .= '<?xml version="1.0" encoding="UTF-8"?> <facturaComputarizadaComp
                         <fechaEnvio>' . getFormattedDateTime() . '</fechaEnvio>
                         <hashArchivo>' . $sha256Hash . '</hashArchivo>
                     </SolicitudServicioRecepcionFactura>
-                </siat:recepcionFactura>
-            </soapenv:Body>
-        </soapenv:Envelope>';
+                </siat:recepcionFactura>';
 
-        // Realizar la llamada SOAP
-        try {
-        $clienteSoap->__doRequest($soapRequest,
-        'https://pilotosiatservicios.impuestos.gob.bo/v2/ServicioFacturacionCompraVenta', '', 1);
-        // Imprimir la respuesta SOAP
-        echo "Respuesta SOAP:\n" . $clienteSoap->__getLastResponse();
-        } catch (SoapFault $e) {
-        echo "Error SOAP: " . $e->getMessage();
+        // Inicializar cURL
+        $ch = curl_init();
+
+        // Configurar opciones de cURL
+        curl_setopt($ch, CURLOPT_URL, "http://localhost:5011/emision");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $soapRequest);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: text/plain; charset=utf-8"));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Enviar la solicitud
+        $response = curl_exec($ch);
+
+        // Verificar si hubo un error
+        if (curl_errno($ch)) {
+        echo 'Error en la solicitud cURL: ' . curl_error($ch);
+        } else {
+        // Procesar la respuesta
+        echo "Respuesta recibida:\n" . $response;
         }
 
+        // Cerrar la sesión cURL
+        curl_close($ch);
         ?>
