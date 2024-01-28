@@ -81,7 +81,7 @@ class SiatCufBuilder {
         $bigInt = $cadenaConModulo;
         $toHex = strtoupper($this->bigIntToHex($bigInt));
 
-        $codigoControl = "07511A789948E74"; // Este valor debe ser reemplazado por el código de control real
+        $codigoControl = "38EF03511A48E74"; // Este valor debe ser reemplazado por el código de control real
         $cuf = $toHex . $codigoControl;
 
         return $cuf;
