@@ -7,12 +7,12 @@
         <municipio>La Paz</municipio>
         <telefono>76543213</telefono>
         <numeroFactura>1</numeroFactura>
-        <cuf>177DB535BA722DEB69DF7B23B3CCC2393EC48606A607511A789948E74</cuf>
-        <cufd>BQTlDV2hpQUE=NzTgwMzg1NENFMDY=Q3wpeHdOYkJZVUFc2RTU4NzA3M0VBM</cufd>
+        <cuf>177DB535BA7241BF632A2EBABE5E37FD2F5A8606A5596EAEB19168E74</cuf>
+        <cufd>BQTlDV2hpQUE=NzTgwMzg1NENFMDY=Q3xNVkxLQkRZVUFc2RTU4NzA3M0VBM</cufd>
         <codigoSucursal>0</codigoSucursal>
         <direccion>AV. JORGE LOPEZ #123</direccion>
         <codigoPuntoVenta xsi:nil="true" />
-        <fechaEmision>2024-01-26T15:22:22.631</fechaEmision>
+        <fechaEmision>2024-02-29T10:52:02.301</fechaEmision>
         <nombreRazonSocial>Hilaquita</nombreRazonSocial>
         <codigoTipoDocumentoIdentidad>1</codigoTipoDocumentoIdentidad>
         <numeroDocumento>12831711016</numeroDocumento>

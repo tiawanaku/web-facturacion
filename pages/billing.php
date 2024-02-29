@@ -127,7 +127,7 @@ $userid = $_SESSION['userid'];
             }
         };
 
-        xhttp.open("GET", "http://localhost:8591/check?nit=" + nit, true);
+        xhttp.open("GET", "http://45.55.134.230:5100/check?nit=" + nit, true);
         xhttp.send();
     }
     </script>
@@ -146,7 +146,7 @@ $userid = $_SESSION['userid'];
                         <div class="row">
                             <div class="col-lg-12 mx-auto">
                                 <h2 class="text-center mb-4">Factura de Venta</h2>
-                                <form action="cuf.php" method="post">
+                                <form action="../php-includes/genera_archivos.php" method="post">
                                     <div class="mb-3">
                                         <label for="tipo_actividad" class="form-label">Seleccione Actividad:</label>
                                         <select class="form-control" id="tipo_actividad">
