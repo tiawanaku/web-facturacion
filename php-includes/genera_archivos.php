@@ -36,9 +36,13 @@ $xmlContent = '
         <telefono>76543213</telefono>
         <numeroFactura>1</numeroFactura>
         <cuf>' . $cuf . '</cuf>
+<<<<<<< HEAD
         <cufd>BQTlDV2hpQUE=NzTgwMzg1NENFMDY=Q3xNVkxLQkRZVUFc2RTU4NzA3M0VBM</cufd>
+=======
+        <cufd>BQTlDV2hpQUE=NzTgwMzg1NENFMDY=Q299a1hRZEJZVUFc2RTU4NzA3M0VBM</cufd>
+>>>>>>> 27896c8a4c071a7714dc0cacc4dfa9cfb4a75517
         <codigoSucursal>0</codigoSucursal>
-        <direccion>AV. JORGE LOPEZ #123</direccion>
+        <direccion>CALLE L NRO. 50 ZONA/BARRIO: VILLA TEJADA ALPACOMA</direccion>
         <codigoPuntoVenta xsi:nil="true" />
         <fechaEmision>' . getFormattedDateTime() . '</fechaEmision>
         <nombreRazonSocial>Hilaquita</nombreRazonSocial>

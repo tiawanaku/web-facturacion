@@ -7,12 +7,21 @@
         <municipio>La Paz</municipio>
         <telefono>76543213</telefono>
         <numeroFactura>1</numeroFactura>
+<<<<<<< HEAD
         <cuf>177DB535BA7241BF632A2EBABE5E37FD2F5A8606A5596EAEB19168E74</cuf>
         <cufd>BQTlDV2hpQUE=NzTgwMzg1NENFMDY=Q3xNVkxLQkRZVUFc2RTU4NzA3M0VBM</cufd>
+=======
+        <cuf>177DB535BA722E4E878E1C8CE7A86205F1298606A138EF03511A48E74</cuf>
+        <cufd>BQTlDV2hpQUE=NzTgwMzg1NENFMDY=Q299a1hRZEJZVUFc2RTU4NzA3M0VBM</cufd>
+>>>>>>> 27896c8a4c071a7714dc0cacc4dfa9cfb4a75517
         <codigoSucursal>0</codigoSucursal>
-        <direccion>AV. JORGE LOPEZ #123</direccion>
+        <direccion>CALLE L NRO. 50 ZONA/BARRIO: VILLA TEJADA ALPACOMA</direccion>
         <codigoPuntoVenta xsi:nil="true" />
+<<<<<<< HEAD
         <fechaEmision>2024-02-29T10:52:02.301</fechaEmision>
+=======
+        <fechaEmision>2024-01-28T16:25:32.844</fechaEmision>
+>>>>>>> 27896c8a4c071a7714dc0cacc4dfa9cfb4a75517
         <nombreRazonSocial>Hilaquita</nombreRazonSocial>
         <codigoTipoDocumentoIdentidad>1</codigoTipoDocumentoIdentidad>
         <numeroDocumento>12831711016</numeroDocumento>
